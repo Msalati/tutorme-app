@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "127903497017",
+    "project_id": "tutor-me-ef780",
+    "storage_bucket": "tutor-me-ef780.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127903497017:android:549eb25fd07338765a86e8",
+        "android_client_info": {
+          "package_name": "com.example.graduation_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127903497017-58aa8g5agucaukoour8ro53a9o13kp3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDVhYAFsximklFBaNnR8pCHRH3QyWNGDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127903497017-58aa8g5agucaukoour8ro53a9o13kp3l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
