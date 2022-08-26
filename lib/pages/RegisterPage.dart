@@ -83,7 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
           .then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
-      context.read<UserState>().setUserInfoRegistered(data);
+          context.read<UserState>().setUserInfoRegistered(data);
         },
         onError: (e) => print("Error getting document: $e"),
       );

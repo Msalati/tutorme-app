@@ -10,6 +10,7 @@ import 'package:graduation_project/pages/Password%20Change.dart';
 import 'package:graduation_project/pages/Recover_Account.dart';
 import 'package:graduation_project/pages/Recover_Account_Code.dart';
 import 'package:graduation_project/pages/RegisterPage.dart';
+import 'package:graduation_project/pages/createCourse.dart';
 import 'package:graduation_project/pages/loginScreen.dart';
 import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/pages/rulesPage.dart';
@@ -60,7 +61,7 @@ class MyApp extends StatelessWidget {
           '/rules': ((context) => RulesPage()),
           '/category/courses': ((context) => CourseList()),
           '/course': ((context) => CourseDetails()),
-          '/course/create': ((context) => CourseDetails()),
+          '/course/create': ((context) => CreateCourse()),
         },
       ),
     );
