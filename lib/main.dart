@@ -59,8 +59,6 @@ class MyApp extends StatelessWidget {
           '/login': ((context) => LoginScreen()),
           '/rules': ((context) => RulesPage()),
           '/category/courses': ((context) => CourseList()),
-          '/course': ((context) => CourseDetails()),
-          '/course/create': ((context) => CourseDetails()),
         },
       ),
     );
@@ -87,7 +85,6 @@ class _HomePageState extends State<HomePage> {
         appBar: buildAppBar(pageTitle[indexClicked]),
         body: pages[indexClicked] //pages[indexClicked]
         ,
-        
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: indexClicked,
           backgroundColor: Color(0xff48A9C5),
