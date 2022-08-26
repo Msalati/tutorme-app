@@ -8,11 +8,16 @@ import 'package:graduation_project/Widgets/errorOccurredDialog.dart';
 import 'package:graduation_project/Widgets/primaryHeaderProfile.dart';
 import 'package:graduation_project/Widgets/successDialog.dart';
 import 'package:graduation_project/defaults.dart';
+import 'package:graduation_project/pages/update_account.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:provider/provider.dart';
 
 class accountAuthed extends StatefulWidget {
-  const accountAuthed({Key? key}) : super(key: key);
+  const accountAuthed({
+    required this.context,
+    Key? key,
+  }) : super(key: key);
+  final BuildContext context;
 
   @override
   State<accountAuthed> createState() => _accountAuthedState();
@@ -49,15 +54,23 @@ class _accountAuthedState extends State<accountAuthed> {
                 context.watch<UserState>().userImage,
               ),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UpdateAccount(context: context),
+                  ),
+                );
+              },
+              child: Text('تعديل الحساب'),
+            ),
             SizedBox(
-              height: 20,
+              height: 5,
             ),
             Divider(
               thickness: 1,
               color: Color(HexColor('#48A9C5')),
-            ),
-            SizedBox(
-              height: 20,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -132,7 +145,8 @@ class _accountAuthedState extends State<accountAuthed> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SecondaryHeaderProfile(
-                        title: context.watch<UserState>().userEntity['address']),
+                        title:
+                            context.watch<UserState>().userEntity['address']),
                   )
                 ]),
               ),

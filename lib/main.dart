@@ -81,7 +81,6 @@ class _HomePageState extends State<HomePage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: buildAppBar(pageTitle[indexClicked]),
         body: pages[indexClicked] //pages[indexClicked]
         ,
         bottomNavigationBar: BottomNavigationBar(
@@ -93,7 +92,10 @@ class _HomePageState extends State<HomePage> {
           elevation: 60,
           onTap: (value) {
             setState(() {
-              indexClicked = value;
+              if (FirebaseAuth.instance.currentUser == null && value == 2)
+                indexClicked = 3;
+              else
+                indexClicked = value;
             });
           },
           items: [

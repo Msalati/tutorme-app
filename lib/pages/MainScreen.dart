@@ -3,16 +3,20 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
 import 'package:graduation_project/Widgets/Post_Widget.dart';
 import 'package:graduation_project/Widgets/Primary_Text.dart';
 import 'package:graduation_project/pages/CourseDetails.dart';
+import 'package:graduation_project/pages/aboutPage.dart';
 import 'package:graduation_project/pages/rulesPage.dart';
+import 'package:graduation_project/pages/search_result_page.dart';
 import 'package:provider/provider.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 
 class MainScreen extends StatefulWidget {
   @override
   State<MainScreen> createState() => _MainScreenState();
+  bool isSearch = false;
 }
 
 class _MainScreenState extends State<MainScreen> {
@@ -25,109 +29,182 @@ class _MainScreenState extends State<MainScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        appBar: widget.isSearch
+            ? AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Color(0xff48A9C5),
+                title: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.isSearch = false;
+                          });
+                        },
+                        icon: Icon(Icons.close, color: Colors.grey),
+                      ),
+                    ),
+                    onFieldSubmitted: (value) {
+                      print(value);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SearchResultPage(
+                            text: value,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ))
+            : AppBar(
+                backgroundColor: Color(0xff48A9C5),
+                centerTitle: true,
+                title: Text(
+                  'الصفحة الرئيسية',
+                  style: TextStyle(
+                    fontFamily: 'Cairo',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.isSearch = true;
+                      });
+                    },
+                    icon: Icon(Icons.search),
+                  ),
+                ],
+              ),
         floatingActionButton: _getFAB(context, context.read<UserState>().type),
         body: SingleChildScrollView(
           child: Container(
             color: Colors.grey[200],
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Image(image: AssetImage('Images/${appLogo}'), width: 120)
-              ]),
-              SizedBox(
-                height: 20,
-              ),
-              CarouselSlider(
-                options: CarouselOptions(
-                    height: size.height * 0.3,
-                    autoPlay: true,
-                    pauseAutoPlayOnTouch: true),
-                items: [1, 2, 3, 4, 5].map((i) {
-                  return Builder(
-                    builder: (BuildContext context) {
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image(image: AssetImage('Images/${appLogo}'), width: 120)
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('topAds')
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
                       return Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        width: 320,
+                        height: 185,
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image:
-                                  Image.network('https://picsum.photos/400/250')
-                                      .image),
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(9),
                         ),
-                        child: Center(
-                            child: Container(
-                                margin: EdgeInsets.fromLTRB(0, 80, 0, 0),
-                                child: Text(
-                                  'Just a course',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                      background: Paint(),
-                                      fontWeight: FontWeight.bold),
-                                ))),
                       );
-                    },
-                  );
-                }).toList(),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              PrimaryText(text: 'الاعلانات'),
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('ads')
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return Column(
-                        // scrollDirection: Axis.vertical,
-                        // shrinkWrap: true,
-                        children: snapshot.data!.docs.map((document) {
-                          return ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CourseDetails(
-                                    adId: document.id,
-                                  ),
-                                ),
-                              );
-                            },
-                            title: Center(
-                              child: Container(
-                                  child: Column(children: [
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                PostWidget(
-                                    tags: [document['category']['title']],
-                                    titleText: document['title'],
-                                    timeOfCourse: DateTime.utc(
-                                        1989, DateTime.november, 9),
-                                    postText: document['body'],
-                                    userImage: 'https://picsum.photos/400/250',
-                                    userName: document['tutor']['firstname'] +
-                                        " " +
-                                        document['tutor']['lastname'],
-                                    onPress: () {})
-                              ])),
-                            ),
+                    } else {
+                      return CarouselSlider(
+                        options: CarouselOptions(
+                          enlargeCenterPage: true,
+                          autoPlayCurve: Curves.linear,
+                          autoPlay: true,
+                        ),
+                        items: snapshot.data!.docs
+                            .map((e) => Builder(
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      width: 320,
+                                      height: 185,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).primaryColor,
+                                        borderRadius: BorderRadius.circular(9),
+                                        image: DecorationImage(
+                                          image:
+                                              NetworkImage(e.get('imageUrl')),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ))
+                            .toList(),
+                      );
+                    }
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                PrimaryText(text: 'الاعلانات'),
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('ads')
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
-                        }).toList(),
-                      );
-                    }),
-              )
-            ]),
+                        }
+                        return Column(
+                          // scrollDirection: Axis.vertical,
+                          // shrinkWrap: true,
+                          children: snapshot.data!.docs.map((document) {
+                            return ListTile(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CourseDetails(
+                                      adId: document.id,
+                                    ),
+                                  ),
+                                );
+                              },
+                              title: Center(
+                                child: Container(
+                                    child: Column(children: [
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  PostWidget(
+                                      tags: [document['category']['title']],
+                                      titleText: document['title'],
+                                      timeOfCourse: DateTime.utc(
+                                          1989, DateTime.november, 9),
+                                      postText: document['body'],
+                                      userImage:
+                                          'https://picsum.photos/400/250',
+                                      userName: document['tutor']['firstname'] +
+                                          " " +
+                                          document['tutor']['lastname'],
+                                      onPress: () {})
+                                ])),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                )
+              ],
+            ),
           ),
         ),
       ),

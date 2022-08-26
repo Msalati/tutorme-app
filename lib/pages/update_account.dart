@@ -1,155 +1,44 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project/Widgets/errorOccurredDialog.dart';
-import 'package:graduation_project/Widgets/flush_bar.dart';
-import 'package:graduation_project/Widgets/successDialog.dart';
-import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:provider/provider.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+import '../providers/userStateProvider.dart';
+
+class UpdateAccount extends StatefulWidget {
+  const UpdateAccount({
+    required this.context,
+    Key? key,
+  }) : super(key: key);
+  final BuildContext context;
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<UpdateAccount> createState() => _UpdateAccountState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _UpdateAccountState extends State<UpdateAccount> {
   final _formKey = GlobalKey<FormState>();
+  late TextEditingController firstName = TextEditingController(
+      text: widget.context.watch<UserState>().userEntity['firstname']);
+  late TextEditingController lastName = TextEditingController(
+      text: widget.context.watch<UserState>().userEntity['lastname']);
+  late TextEditingController email = TextEditingController(
+      text: widget.context.watch<UserState>().userEntity['email']);
+  late TextEditingController phone_number = TextEditingController(
+      text: widget.context.watch<UserState>().userEntity['phone_number']);
+  late TextEditingController password = TextEditingController();
+  late TextEditingController confirmPassword = TextEditingController();
   bool _isObscure1 = true;
   bool _isObscure2 = true;
-  bool isLoading = false;
-  var firstName = TextEditingController();
-  var lastName = TextEditingController();
-  var email = TextEditingController();
-  var password = TextEditingController();
-  var confirmPassword = TextEditingController();
-  var phone_number = TextEditingController();
-  String userType = 'client';
-  String dropdownValue = 'طرابلس';
-  var user = {
-    "address": "",
-    "created_at": "",
-    "firstname": "",
-    "lastname": "",
-    "id": "",
-    "iaActive": "",
-    "isVIP": "",
-    "phone_number": "",
-    "skills": "",
-    "type": ""
-  };
-  registerUser(usersCollection) async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final auth = FirebaseAuth.instance;
-      // Attempt to sign in the user in with Google
-      var userCredentials =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email.text,
-        password: password.text,
-      );
-      // debugPrint('testing worked ${mailer.user.ui}');
-      var userObject = {
-        "id": userCredentials.user!.uid,
-        "firstname": firstName.text,
-        "lastname": lastName.text,
-        "address": dropdownValue,
-        "email": email.text,
-        "created_at": DateTime.now().millisecondsSinceEpoch,
-        "isActive": true,
-        "isVIP": false,
-        "phone_number": '+218${phone_number.text}',
-        "skills": "",
-        "type": userType
-      };
-
-      if (userType == 'client') {
-        userObject.remove('isVIP');
-        userObject.remove('skills');
-      }
-      //inserting into firebase FIRESTORE the user data that was inserted
-      var firestoreUser = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(auth.currentUser?.uid)
-          .set(userObject);
-      await auth.currentUser
-          ?.updateDisplayName("${firstName.text} ${lastName.text}");
-
-      //update photo
-      await auth.currentUser?.updatePhotoURL('https://picsum.photos/200');
-
-      var firestoreUserData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(auth.currentUser?.uid)
-          .get()
-          .then(
-        (DocumentSnapshot doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          context.read<UserState>().setUserInfoRegistered(data);
-        },
-        onError: (e) => print("Error getting document: $e"),
-      );
-
-      context.read<UserState>().setUser(auth.currentUser);
-
-      showDialog(
-          context: context,
-          builder: (context) {
-            return successDialog(
-              text: 'تم التسجيل بنجاح',
-              content: 'قم بالتأكيد للتوجه للصفحة الرئيسية ',
-              navigateTo: '/home',
-            );
-          });
-
-      // Navigator.push(
-      //     context, MaterialPageRoute(builder: (context) => LoginScreen()));
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return errorOccurredDialog(
-                  text: 'حدث خطأ في تسجيل الحساب',
-                  content:
-                      'البريد الإلكتروني هذا مسجل بالفعل، يرجى إستخدام حساب آخر.');
-            });
-      } else if (e.code == 'account-exists-with-different-credential') {
-        // The account already exists with a different credential
-        String? email = e.email;
-        AuthCredential? pendingCredential = e.credential;
-
-        showDialog(
-            context: context,
-            builder: (context) {
-              return errorOccurredDialog(
-                  text: 'حدث خطأ', content: 'خطأ : ${e.code}');
-            });
-      } else {
-        buildFlushbar(context, messageText: 'حدث خطأ ما أثناء عملية التسجيل')
-            .show(context);
-      }
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
+  String? dropdownValue;
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
             title: Text(
-              'إنشاء حساب',
+              'تعديل الحساب',
               style: TextStyle(fontFamily: 'Cairo'),
             ),
             backgroundColor: Color(0xff48A9C5),
@@ -443,70 +332,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(
                         height: 20,
                       ),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                        child: Row(children: [
-                          Text('نوع المستخدم', textAlign: TextAlign.right),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Row(
-                            children: [
-                              Text('عميل'),
-                              Radio(
-                                  value: 'client',
-                                  groupValue: userType,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      userType = val.toString();
-                                    });
-                                  })
-                            ],
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Row(
-                            children: [
-                              Text('مرشد'),
-                              Radio(
-                                  value: 'tutor',
-                                  groupValue: userType,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      userType = val.toString();
-                                    });
-                                  })
-                            ],
-                          ),
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      isLoading
-                          ? CircularProgressIndicator()
-                          : Container(
-                              width: 200,
-                              decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  border: Border.all(
-                                      color: Color(0xff48A9C5), width: 2),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: MaterialButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    await registerUser(usersCollection);
-                                  }
-                                },
-                                child: Text(
-                                  'إنشاء الحساب',
-                                  style: TextStyle(
-                                      color: Color(0xff48A9C5), fontSize: 20),
-                                ),
-                              ),
-                            ),
                     ],
                   ),
                 ),
