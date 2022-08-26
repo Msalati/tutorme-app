@@ -5,7 +5,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:graduation_project/Widgets/AppBar.dart';
 
 class CourseDetails extends StatefulWidget {
-  const CourseDetails({Key? key}) : super(key: key);
+  const CourseDetails({
+    required this.adId,
+    Key? key,
+  }) : super(key: key);
+
+  final String adId;
 
   @override
   State<CourseDetails> createState() => _CourseDetailsState();

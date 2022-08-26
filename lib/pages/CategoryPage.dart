@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/Widgets/Category_Widget.dart';
+import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/providers/categoryStateProvider.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -51,7 +52,16 @@ class _CategoryPageState extends State<CategoryPage> {
               children: snapshot.data!.docs.map((document) {
                 return ListTile(
                   onTap: () {
-                    Navigator.pushNamed(context, '/category/courses');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return CourseList(
+                            categoryId: document.id,
+                          );
+                        },
+                      ),
+                    );
                   },
                   title: Center(
                     child: Container(

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/Widgets/Post_Widget.dart';
 import 'package:graduation_project/Widgets/Primary_Text.dart';
+import 'package:graduation_project/pages/CourseDetails.dart';
 import 'package:graduation_project/pages/rulesPage.dart';
 import 'package:provider/provider.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
@@ -93,7 +94,14 @@ class _MainScreenState extends State<MainScreen> {
                         children: snapshot.data!.docs.map((document) {
                           return ListTile(
                             onTap: () {
-                              Navigator.pushNamed(context, '/course');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CourseDetails(
+                                    adId: document.id,
+                                  ),
+                                ),
+                              );
                             },
                             title: Center(
                               child: Container(

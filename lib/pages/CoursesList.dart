@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:graduation_project/Widgets/AppBar.dart';
+import 'package:graduation_project/Widgets/Post_Widget.dart';
+import 'package:graduation_project/pages/CourseDetails.dart';
 
 class CourseList extends StatefulWidget {
-  const CourseList({Key? key}) : super(key: key);
+  const CourseList({
+    required this.categoryId,
+    Key? key,
+  }) : super(key: key);
+  final String categoryId;
 
   @override
   State<CourseList> createState() => _CourseListState();
@@ -22,10 +28,15 @@ class _CourseListState extends State<CourseList> {
         body: Container(
           margin: const EdgeInsets.only(top: 10),
           child: StreamBuilder(
-              stream:
-                  FirebaseFirestore.instance.collection('courses').snapshots(),
-              builder:
-                  (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              stream: FirebaseFirestore.instance
+                  .collection('ads')
+                  .where(
+                    FieldPath.fromString('category.id'),
+                    isEqualTo: widget.categoryId,
+                  )
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -33,11 +44,35 @@ class _CourseListState extends State<CourseList> {
                 }
                 return ListView(
                   children: snapshot.data!.docs.map((document) {
-                    return Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        height: MediaQuery.of(context).size.width / 4,
-                        child: Text(document['name']),
+                    return ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CourseDetails(
+                              adId: document.id,
+                            ),
+                          ),
+                        );
+                      },
+                      title: Center(
+                        child: Container(
+                            child: Column(children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          PostWidget(
+                              tags: [document['category']['title']],
+                              titleText: document['title'],
+                              timeOfCourse:
+                                  DateTime.utc(1989, DateTime.november, 9),
+                              postText: document['body'],
+                              userImage: 'https://picsum.photos/400/250',
+                              userName: document['tutor']['firstname'] +
+                                  " " +
+                                  document['tutor']['lastname'],
+                              onPress: () {})
+                        ])),
                       ),
                     );
                   }).toList(),
