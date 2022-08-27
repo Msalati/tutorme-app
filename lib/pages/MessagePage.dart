@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/pages/ChatScreen.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/userStateProvider.dart';
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({Key? key}) : super(key: key);
@@ -32,7 +35,10 @@ class _MessagesPageState extends State<MessagesPage> {
           child: StreamBuilder(
             stream: FirebaseFirestore.instance
                 .collection('messages')
-                .where('userId',
+                .where(
+                    context.watch<UserState>().userEntity['type'] != 'tutor'
+                        ? 'userId'
+                        : 'userAdId',
                     isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                 .snapshots(),
             builder:

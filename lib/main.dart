@@ -47,6 +47,9 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<AuthService>(
           create: (_) => AuthService(),
+        ),
+        Provider<UserState>(
+          create: (_) => UserState(),
         )
       ],
       child: MaterialApp(

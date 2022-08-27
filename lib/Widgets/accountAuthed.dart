@@ -37,171 +37,185 @@ Future _signOut() async {
 }
 
 class _accountAuthedState extends State<accountAuthed> {
+  ValueNotifier<int> valueListen = ValueNotifier(0);
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Container(
-            child: Column(
-          children: [
-            SizedBox(
-              height: 20,
-            ),
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(
-                context.watch<UserState>().userImage,
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UpdateAccount(context: context),
+      child: ValueListenableBuilder(
+        valueListenable: valueListen,
+        builder: (context, value, child) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Container(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 20,
                   ),
-                );
-              },
-              child: Text('تعديل الحساب'),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Divider(
-              thickness: 1,
-              color: Color(HexColor('#48A9C5')),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
-                  Icon(
-                    Icons.person,
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: NetworkImage(
+                      context.watch<UserState>().userImage,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UpdateAccount(
+                            context: context,
+                            valueListen: valueListen,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text('تعديل الحساب'),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    thickness: 1,
                     color: Color(HexColor('#48A9C5')),
                   ),
-                  PrimaryHeaderProfile(title: "إسم المستخدم")
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SecondaryHeaderProfile(
-                        title: context.watch<UserState>().userFullName),
-                  )
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
-                  Icon(
-                    Icons.email,
-                    color: Color(HexColor('#48A9C5')),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Icon(
+                          Icons.person,
+                          color: Color(HexColor('#48A9C5')),
+                        ),
+                        PrimaryHeaderProfile(title: "إسم المستخدم")
+                      ]),
+                    ),
                   ),
-                  PrimaryHeaderProfile(title: "البريد الإلكتروني")
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SecondaryHeaderProfile(
-                        title: context.watch<UserState>().userEntity['email']),
-                  )
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
-                  Icon(
-                    Icons.location_city,
-                    color: Color(HexColor('#48A9C5')),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SecondaryHeaderProfile(
+                              title:
+                                  '${context.watch<UserState>().userEntity['firstname']} ${context.watch<UserState>().userEntity['lastname']}'),
+                        )
+                      ]),
+                    ),
                   ),
-                  PrimaryHeaderProfile(title: "العنوان")
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SecondaryHeaderProfile(
-                        title:
-                            context.watch<UserState>().userEntity['address']),
-                  )
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
-                  Icon(
-                    Icons.assignment_ind,
-                    color: Color(HexColor('#48A9C5')),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Icon(
+                          Icons.email,
+                          color: Color(HexColor('#48A9C5')),
+                        ),
+                        PrimaryHeaderProfile(title: "البريد الإلكتروني")
+                      ]),
+                    ),
                   ),
-                  PrimaryHeaderProfile(title: "نوع الحساب")
-                ]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: double.infinity,
-                child: Row(children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SecondaryHeaderProfile(
-                        title:
-                            accountDeterminer(context.watch<UserState>().type)),
-                  )
-                ]),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SecondaryHeaderProfile(
+                              title: context
+                                  .watch<UserState>()
+                                  .userEntity['email']),
+                        )
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Icon(
+                          Icons.location_city,
+                          color: Color(HexColor('#48A9C5')),
+                        ),
+                        PrimaryHeaderProfile(title: "العنوان")
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SecondaryHeaderProfile(
+                              title: context
+                                  .watch<UserState>()
+                                  .userEntity['address']),
+                        )
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Icon(
+                          Icons.assignment_ind,
+                          color: Color(HexColor('#48A9C5')),
+                        ),
+                        PrimaryHeaderProfile(title: "نوع الحساب")
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: double.infinity,
+                      child: Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SecondaryHeaderProfile(
+                              title: accountDeterminer(
+                                  context.watch<UserState>().type)),
+                        )
+                      ]),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_signOut().toString().isNotEmpty == true) {
+                        // clear the state if firebase works
+                        context.read<UserState>().clearAuth();
+                        Navigator.pushNamed(context, '/login');
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return errorOccurredDialog(
+                                  text: 'حدث خطأ في تسجيل الخروج',
+                                  content: 'يرجى المحاولة مرة أخرى...');
+                            });
+                      }
+                    },
+                    child: Text('تسجيل الخروج'),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red[400], // Background color
+                      onPrimary: Colors.white, // Text Color (Foreground color)
+                    ),
+                  ),
+                ],
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                if (_signOut().toString().isNotEmpty == true) {
-                  // clear the state if firebase works
-                  context.read<UserState>().clearAuth();
-                  Navigator.pushNamed(context, '/login');
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return errorOccurredDialog(
-                            text: 'حدث خطأ في تسجيل الخروج',
-                            content: 'يرجى المحاولة مرة أخرى...');
-                      });
-                }
-              },
-              child: Text('تسجيل الخروج'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red[400], // Background color
-                onPrimary: Colors.white, // Text Color (Foreground color)
-              ),
-            ),
-          ],
-        )),
+          );
+        },
       ),
     );
   }

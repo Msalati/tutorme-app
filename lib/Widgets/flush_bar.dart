@@ -25,6 +25,6 @@ Flushbar buildFlushbar(
         ? Icon(Icons.check_circle, color: Colors.white)
         : Icon(Icons.info, color: Colors.white),
     duration: Duration(seconds: 2),
-    backgroundColor: successes ? Color(0xffBF9284) : Color(0xff242037),
+    backgroundColor: successes ? Color(0xff00ff02) : Color(0xff242037),
   );
 }
