@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/pages/ChatScreen.dart';
+import 'package:graduation_project/pages/report_chat_page.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/userStateProvider.dart';
@@ -27,6 +28,14 @@ class _MessagesPageState extends State<MessagesPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              sendReport();
+            },
+            icon: Icon(Icons.send),
+          ),
+        ],
       ),
       body: Container(
         margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -134,5 +143,42 @@ class _MessagesPageState extends State<MessagesPage> {
         ),
       ),
     );
+  }
+
+  void sendReport() async {
+    final database = FirebaseFirestore.instance.collection('reports');
+    final result = await database
+        .where(
+          'userId',
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+        )
+        .get();
+    if (result.docs.isEmpty) {
+      final doc = await database.add({
+        'chat': [],
+        'unseenMsgs': 0,
+        'userId': FirebaseAuth.instance.currentUser!.uid,
+      });
+      doc.update({
+        'id': doc.id,
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReportChatPage(
+            chatId: doc.id,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReportChatPage(
+            chatId: result.docs.first.id,
+          ),
+        ),
+      );
+    }
   }
 }

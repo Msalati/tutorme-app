@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/defaults.dart';
 
@@ -8,7 +7,7 @@ class ButtonBorder extends StatelessWidget {
   String textColor,
       borderColor; // put the colors in hexa code without # example TextColor:"ffffffff" and thats it , HexaColor function will handle the rest
   double fontSize;
-double buttonRadius ;
+  double buttonRadius;
   ButtonBorder({
     Key? key,
     this.buttonRadius = 0,
@@ -36,7 +35,8 @@ double buttonRadius ;
             },
             child: Text("${this.text}",
                 style: TextStyle(
-                    fontSize: this.fontSize,
-                    color: Color(HexColor(this.textColor)),))));
+                  fontSize: this.fontSize,
+                  color: Color(HexColor(this.textColor)),
+                ))));
   }
 }

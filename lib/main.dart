@@ -2,26 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/pages/Acount_Page.dart';
 import 'package:graduation_project/pages/CategoryPage.dart';
-import 'package:graduation_project/pages/CourseDetails.dart';
-import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/pages/MainScreen.dart';
 import 'package:graduation_project/pages/MessagePage.dart';
-import 'package:graduation_project/pages/Password%20Change.dart';
-import 'package:graduation_project/pages/Recover_Account.dart';
-import 'package:graduation_project/pages/Recover_Account_Code.dart';
-import 'package:graduation_project/pages/RegisterPage.dart';
 import 'package:graduation_project/pages/loginScreen.dart';
-import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/pages/rulesPage.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:graduation_project/services/auth.dart';
 import 'package:graduation_project/wrapper.dart';
 import 'package:provider/provider.dart';
 
-import 'Widgets/AppBar.dart';
-import 'pages/ChatScreen.dart';
-import 'pages/SplashScreen.dart';
-import 'pages/aboutPage.dart';
 import 'defaults.dart';
 
 // firebase options
