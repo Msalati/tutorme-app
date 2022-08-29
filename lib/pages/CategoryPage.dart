@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/Widgets/Category_Widget.dart';
+import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/providers/categoryStateProvider.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -35,41 +36,63 @@ class _CategoryPageState extends State<CategoryPage> {
   // ···
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10),
-      child: StreamBuilder(
-          stream:
-              FirebaseFirestore.instance.collection('categories').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return ListView(
-              children: snapshot.data!.docs.map((document) {
-                return ListTile(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/category/courses');
-                  },
-                  title: Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 1.2,
-                      height: MediaQuery.of(context).size.width / 4,
-                      child: CategoryWidget(
-                        icon: Icons.menu_book,
-                        text: document['title'],
-                        startColor: 'f48A9C5',
-                        endColor: '48C9D7',
-                        sizedBoxHeight: 10,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xff48A9C5),
+        centerTitle: true,
+        title: Text(
+          'الفئات',
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Container(
+        margin: const EdgeInsets.only(top: 10),
+        child: StreamBuilder(
+            stream:
+                FirebaseFirestore.instance.collection('categories').snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return ListView(
+                children: snapshot.data!.docs.map((document) {
+                  return ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CourseList(
+                              categoryId: document.id,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    title: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width / 1.2,
+                        height: MediaQuery.of(context).size.width / 4,
+                        child: CategoryWidget(
+                          icon: Icons.menu_book,
+                          text: document['title'],
+                          startColor: 'f48A9C5',
+                          endColor: '48C9D7',
+                          sizedBoxHeight: 10,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
-            );
-          }),
+                  );
+                }).toList(),
+              );
+            }),
+      ),
     );
   }
 }

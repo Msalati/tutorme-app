@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/Widgets/chat_bubble.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({
+class ReportChatPage extends StatefulWidget {
+  const ReportChatPage({
     required this.chatId,
     Key? key,
   }) : super(key: key);
@@ -12,10 +12,10 @@ class ChatScreen extends StatefulWidget {
   final String chatId;
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ReportChatPage> createState() => _ReportChatPageState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ReportChatPageState extends State<ReportChatPage> {
   TextEditingController messageController = TextEditingController();
 
   @override
@@ -24,7 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("UserName"),
+          title: Text("المسؤول"),
           backgroundColor: Color(0xff48A9C5),
           leading: Image.asset(
             'Images/user.png',
@@ -50,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: SingleChildScrollView(
                     child: StreamBuilder<DocumentSnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection('messages')
+                          .collection('reports')
                           .doc(widget.chatId)
                           .snapshots(),
                       builder: (BuildContext context,
@@ -99,7 +99,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void sendMessage() async {
     if (messageController.text.isNotEmpty) {
       await FirebaseFirestore.instance
-          .collection('messages')
+          .collection('reports')
           .doc(widget.chatId)
           .update({
         'chat': FieldValue.arrayUnion([

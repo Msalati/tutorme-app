@@ -9,13 +9,13 @@ import 'package:graduation_project/Widgets/accountAuthed.dart';
 import 'package:provider/provider.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 
-
 class AccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    debugPrint('is authenticated?! : ${context.watch<UserState>().isAuthenticated().toString()}');
+    debugPrint(
+        'is authenticated?! : ${context.watch<UserState>().isAuthenticated().toString()}');
     return (context.watch<UserState>().isAuthenticated())
-        ? accountAuthed()
+        ? accountAuthed(context: context)
         : accountNoAuth();
   }
 }

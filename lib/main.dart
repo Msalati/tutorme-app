@@ -2,27 +2,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project/pages/Acount_Page.dart';
 import 'package:graduation_project/pages/CategoryPage.dart';
-import 'package:graduation_project/pages/CourseDetails.dart';
-import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/pages/MainScreen.dart';
 import 'package:graduation_project/pages/MessagePage.dart';
-import 'package:graduation_project/pages/Password%20Change.dart';
-import 'package:graduation_project/pages/Recover_Account.dart';
-import 'package:graduation_project/pages/Recover_Account_Code.dart';
-import 'package:graduation_project/pages/RegisterPage.dart';
 import 'package:graduation_project/pages/createCourse.dart';
 import 'package:graduation_project/pages/loginScreen.dart';
-import 'package:graduation_project/pages/CoursesList.dart';
 import 'package:graduation_project/pages/rulesPage.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:graduation_project/services/auth.dart';
 import 'package:graduation_project/wrapper.dart';
 import 'package:provider/provider.dart';
 
-import 'Widgets/AppBar.dart';
-import 'pages/ChatScreen.dart';
-import 'pages/SplashScreen.dart';
-import 'pages/aboutPage.dart';
 import 'defaults.dart';
 
 // firebase options
@@ -48,6 +37,9 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<AuthService>(
           create: (_) => AuthService(),
+        ),
+        Provider<UserState>(
+          create: (_) => UserState(),
         )
       ],
       child: MaterialApp(
@@ -59,8 +51,6 @@ class MyApp extends StatelessWidget {
           '/home': ((context) => HomePage()),
           '/login': ((context) => LoginScreen()),
           '/rules': ((context) => RulesPage()),
-          '/category/courses': ((context) => CourseList()),
-          '/course': ((context) => CourseDetails()),
           '/course/create': ((context) => CreateCourse()),
         },
       ),
@@ -85,10 +75,8 @@ class _HomePageState extends State<HomePage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: buildAppBar(pageTitle[indexClicked]),
         body: pages[indexClicked] //pages[indexClicked]
         ,
-        
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: indexClicked,
           backgroundColor: Color(0xff48A9C5),
@@ -98,7 +86,10 @@ class _HomePageState extends State<HomePage> {
           elevation: 60,
           onTap: (value) {
             setState(() {
-              indexClicked = value;
+              if (FirebaseAuth.instance.currentUser == null && value == 2)
+                indexClicked = 3;
+              else
+                indexClicked = value;
             });
           },
           items: [
