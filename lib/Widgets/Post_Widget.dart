@@ -77,10 +77,9 @@ class _PostWidgetState extends State<PostWidget> {
                                 children: <Widget>[
                                   Row(children: [
                                     CircleAvatar(
+                                      backgroundColor: Colors.blue,
                                       backgroundImage:
-                                          Image.network(this.widget.userImage)
-                                              .image,
-                                      backgroundColor: Colors.white,
+                                          AssetImage('Images/user.png'),
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -144,7 +143,10 @@ class _PostWidgetState extends State<PostWidget> {
                         textAlign: TextAlign.right,
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 14, wordSpacing: 1, color: Color(HexColor('#808080'))),
+                        style: TextStyle(
+                            fontSize: 14,
+                            wordSpacing: 1,
+                            color: Color(HexColor('#808080'))),
                       ))),
               /*       InkWell(
             child: Text(this.textToDisplay),

@@ -140,7 +140,7 @@ class _CourseDetailsState extends State<CourseDetails> {
                                 SizedBox(
                                   width: 5,
                                 ),
-                                Icon(Icons.phone, color: Color(0xff48a9c5)),
+                                Icon(Icons.message, color: Color(0xff48a9c5)),
                               ],
                             )
                           ],
@@ -164,7 +164,12 @@ class _CourseDetailsState extends State<CourseDetails> {
                                       color: Color(0xff48A9C5),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: Text(e),
+                                    child: Text(
+                                      e,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 10,

@@ -23,6 +23,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseAuth.instance.signOut();
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (_) => UserState())],
     child: MyApp(),
@@ -38,9 +39,6 @@ class MyApp extends StatelessWidget {
         Provider<AuthService>(
           create: (_) => AuthService(),
         ),
-        Provider<UserState>(
-          create: (_) => UserState(),
-        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

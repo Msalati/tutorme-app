@@ -190,8 +190,7 @@ class _MainScreenState extends State<MainScreen> {
                                       timeOfCourse: DateTime.utc(
                                           1989, DateTime.november, 9),
                                       postText: document['body'],
-                                      userImage:
-                                          'https://picsum.photos/400/250',
+                                      userImage: '',
                                       userName: document['tutor']['firstname'] +
                                           " " +
                                           document['tutor']['lastname'],
