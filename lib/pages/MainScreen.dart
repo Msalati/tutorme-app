@@ -149,7 +149,7 @@ class _MainScreenState extends State<MainScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                PrimaryText(text: 'الاعلانات'),
+                PrimaryText(text: 'الإعلانات'),
                 Container(
                   margin: const EdgeInsets.only(top: 10),
                   child: StreamBuilder(
