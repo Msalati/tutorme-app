@@ -14,17 +14,17 @@ Flushbar buildFlushbar(
     titleText: Text(
       title,
       textDirection: TextDirection.rtl,
-      style: textStyle!.copyWith(color: primaryColor),
+      style: textStyle!.copyWith(color: Colors.white),
     ),
     messageText: Text(
       messageText,
       textDirection: TextDirection.rtl,
-      style: textStyle.copyWith(color: primaryColor),
+      style: textStyle.copyWith(color: Colors.white),
     ),
     icon: successes
         ? Icon(Icons.check_circle, color: Colors.white)
         : Icon(Icons.info, color: Colors.white),
     duration: Duration(seconds: 2),
-    backgroundColor: successes ? Color(0xff00ff02) : Color(0xff242037),
+    backgroundColor: successes ? Colors.green : Color(0xff242037),
   );
 }

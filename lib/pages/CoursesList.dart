@@ -24,7 +24,7 @@ class _CourseListState extends State<CourseList> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: buildAppBar('الدورات'),
+        appBar: buildAppBar('الإعلانات'),
         body: Container(
           margin: const EdgeInsets.only(top: 10),
           child: StreamBuilder(
