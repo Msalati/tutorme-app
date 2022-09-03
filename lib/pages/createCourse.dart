@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:graduation_project/Widgets/flush_bar.dart';
 import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:intl/intl.dart' as dateBox;
 import 'package:provider/provider.dart';
@@ -62,8 +65,21 @@ class _CreateCourseState extends State<CreateCourse> {
         .doc()
         .set(course)
         .then((value) {
-      Navigator.pushNamed(context, '/home');
-    }).catchError((onError) {});
+      buildFlushbar(context,
+              messageText: 'تم إنشاء إعلان بنجاح',
+              title: 'تمت العملية',
+              successes: true)
+          .show(context);
+      // allowing the flushbar to appear
+      Timer(Duration(milliseconds: 500), () {
+        Navigator.pushNamed(context, '/home');
+      });
+    }).catchError((onError) {
+      buildFlushbar(context,
+              messageText: 'حدث خطأ يرجى إعادة المحاولة',
+              title: 'حدث خطأ',)
+          .show(context);
+    });
   }
 
   void initState() {
