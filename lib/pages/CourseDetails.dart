@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
 import 'package:graduation_project/Widgets/AppBar.dart';
+import 'package:graduation_project/Widgets/flush_bar.dart';
 
 import 'ChatScreen.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/userStateProvider.dart';
+import 'package:rating_dialog/rating_dialog.dart';
 
 class CourseDetails extends StatefulWidget {
   const CourseDetails({
@@ -25,6 +27,46 @@ class CourseDetails extends StatefulWidget {
 class _CourseDetailsState extends State<CourseDetails> {
   String username = 'Loading';
   double value = 0;
+  var reviews = [];
+
+  late final _dialog = RatingDialog(
+    initialRating: 1.0,
+    // your app's name?
+    title: Text(
+      'تقييم الإعلان',
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontSize: 25,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    // encourage your user to leave a high rating?
+    message: Text(
+      'قم بالضغط على النجوم لوضع تقييمك الشخصي لهذا الإعلان',
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 15),
+    ),
+    // your app's logo?
+    submitButtonText: 'تأكيد التقييم',
+    enableComment: false,
+    onCancelled: () => print('cancelled'),
+    onSubmitted: (response) {
+      postReview(
+          widget.adId, FirebaseAuth.instance.currentUser!.uid, response.rating);
+
+      // TODO: add your own logic
+      if (response.rating < 3.0) {
+        // send their comments to your email or anywhere you wish
+        // ask the user to contact you instead of leaving a bad review
+
+        // buildFlushbar(context,
+        //         messageText: 'حدث خطأ',
+        //         title: 'الرجاء المحاولة من جديد',
+        //         successes: false)
+        //     .show(context);
+      }
+    },
+  );
 
   String usernameSetter(firstname, lastname) {
     username = '${firstname} ${lastname}';
@@ -32,15 +74,51 @@ class _CourseDetailsState extends State<CourseDetails> {
   }
 
   double getAvgReviews(reviews) {
+    // settings reviews array to use it in the update method
+    this.reviews = reviews;
     // reviews array
     /**
      * Summation of review values / NUMBER OF REVIEWS (LENGTH )
     **/
     num sum = 0;
+    if (reviews.isEmpty) return 0;
     for (var i = 0; i < reviews.length; i++) {
-      sum += reviews[0]['rating'];
+      sum += reviews[i]['rating'];
     }
-    return (sum / reviews.length);
+    return (sum / reviews.length)
+        .roundToDouble(); //to make sure not to break the rating widget
+  }
+
+  Future postReview(adId, userId, rating) async {
+    //will update the firebase instance of that particulr COURSE ID with the new review posted with the USER ID
+    try {
+      int indexOfMatch =
+          this.reviews.indexWhere((element) => element['userId'] == userId);
+
+      if (indexOfMatch == -1) {
+        this.reviews.add({'userId': userId, 'rating': rating});
+        buildFlushbar(context,
+                messageText: 'تم التقييم بنجاح',
+                title: 'تمت العملية',
+                successes: true)
+            .show(context);
+      } else {
+        this.reviews[indexOfMatch]['rating'] = rating;
+        buildFlushbar(context,
+                messageText: 'تم تعديل تقييمك بنجاح',
+                title: 'تمت العملية',
+                successes: true)
+            .show(context);
+      }
+
+      await FirebaseFirestore.instance
+          .collection('ads')
+          .doc(adId)
+          .update({'reviews': this.reviews});
+    } catch (e) {
+      buildFlushbar(context, messageText: 'حدث خطأ أثناء عملية التقييم')
+          .show(context);
+    }
   }
 
   @override
@@ -144,29 +222,20 @@ class _CourseDetailsState extends State<CourseDetails> {
                             );
                           },
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Container(
-                                width: 110,
-                                height: 40,
-                                color: Colors.grey,
+                              Text(
+                                'مراسلة',
+                                style: TextStyle(
+                                  color: Color(0xff808080),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.normal,
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    'مراسلة',
-                                    style: TextStyle(
-                                      color: Color(0xff808080),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Icon(Icons.message, color: Color(0xff48a9c5)),
-                                ],
-                              )
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Icon(Icons.message, color: Color(0xff48a9c5))
                             ],
                           ),
                         ),
@@ -223,7 +292,14 @@ class _CourseDetailsState extends State<CourseDetails> {
                             width: 10,
                           ),
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                barrierDismissible:
+                                    true, // set to false if you want to force a rating
+                                builder: (context) => _dialog,
+                              );
+                            },
                             icon: Icon(Icons.star),
                             label: Text(
                               "تقييم",
