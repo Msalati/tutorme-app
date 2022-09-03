@@ -64,152 +64,149 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         ],
       ),
-      body: Container(
-        margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+      body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: SingleChildScrollView(
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('messages')
-                .where(
-                    context.watch<UserState>().type != 'tutor'
-                        ? 'userId'
-                        : 'userAdId',
-                    isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                .snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Column(
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('messages')
+              .where(
+                  context.watch<UserState>().type != 'tutor'
+                      ? 'userId'
+                      : 'userAdId',
+                  isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return SingleChildScrollView(
+                child: Column(
                   children: snapshot.data!.docs
-                      .map((e) => Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: MaterialButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ChatScreen(
-                                                chatId: e.id,
-                                                username: 'جار التحميل...',
-                                              )),
+                      .map(
+                        (e) => Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: MaterialButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                        chatId: e.id,
+                                        username: 'جار التحميل...',
+                                      ),
+                                    ),
 
-                                              /**
-                                               * improvised solution:
-                                               * getUsername(determiner(
-                                                    e,
-                                                    context
-                                                                .watch<
-                                                                    UserState>()
-                                                                .type ==
-                                                            'tutor'
-                                                        ? 'userId'
-                                                        : 'userAdId'))
-                                                        
-                                                        
-                                               */
-                                    );
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Container(
-                                        width: 50,
-                                        height: 50,
-                                        child: Expanded(
-                                          flex: 2,
-                                          child: CircleAvatar(
-                                            backgroundColor: Colors.blue,
-                                            backgroundImage:
-                                                AssetImage('Images/user.png'),
-                                          ),
+                                    /**
+                                 * improvised solution:
+                                 * getUsername(determiner(
+                                    e,
+                                    context
+                                    .watch<
+                                    UserState>()
+                                    .type ==
+                                    'tutor'
+                                    ? 'userId'
+                                    : 'userAdId'))
+
+
+                                 */
+                                  );
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.blue,
+                                        backgroundImage:
+                                            AssetImage('Images/user.png'),
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Expanded(
+                                      flex: 8,
+                                      child: Container(
+                                        width: double.infinity,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // e.id
+                                            StreamBuilder<
+                                                DocumentSnapshot<
+                                                    Map<String, dynamic>>>(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(determiner(
+                                                      e,
+                                                      context
+                                                                  .watch<
+                                                                      UserState>()
+                                                                  .type ==
+                                                              'tutor'
+                                                          ? 'userId'
+                                                          : 'userAdId'))
+                                                  .snapshots(),
+                                              builder: (context, snapshot) {
+                                                if (!snapshot.hasData) {
+                                                  return CircularProgressIndicator();
+                                                }
+                                                var user = snapshot.data;
+                                                return Text(
+                                                  usernameSetter(
+                                                      user!['firstname'],
+                                                      user['lastname']),
+                                                  textAlign: TextAlign.right,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  softWrap: false,
+                                                );
+                                              },
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              (e.get('chat') as List).isNotEmpty
+                                                  ? (e.get('chat') as List)
+                                                      .last['message']
+                                                  : '',
+                                              textAlign: TextAlign.right,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              softWrap: false,
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      SizedBox(width: 20),
-                                      Expanded(
-                                        flex: 8,
-                                        child: Container(
-                                          width: double.infinity,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // e.id
-                                              StreamBuilder<
-                                                  DocumentSnapshot<
-                                                      Map<String, dynamic>>>(
-                                                stream: FirebaseFirestore
-                                                    .instance
-                                                    .collection('users')
-                                                    .doc(determiner(
-                                                        e,
-                                                        context
-                                                                    .watch<
-                                                                        UserState>()
-                                                                    .type ==
-                                                                'tutor'
-                                                            ? 'userId'
-                                                            : 'userAdId'))
-                                                    .snapshots(),
-                                                builder: (context, snapshot) {
-                                                  if (!snapshot.hasData) {
-                                                    return LinearProgressIndicator();
-                                                  }
-                                                  var user = snapshot.data;
-                                                  return Text(
-                                                    usernameSetter(
-                                                        user!['firstname'],
-                                                        user['lastname']),
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    softWrap: false,
-                                                  );
-                                                },
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                (e.get('chat') as List)
-                                                        .isNotEmpty
-                                                    ? (e.get('chat') as List)
-                                                        .last['message']
-                                                    : '',
-                                                textAlign: TextAlign.right,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                softWrap: false,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                    )
+                                  ],
                                 ),
                               ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                            ],
-                          ))
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
+                      )
                       .toList(),
-                );
-              }
-            },
-          ),
+                ),
+              );
+            }
+          },
         ),
       ),
     );
