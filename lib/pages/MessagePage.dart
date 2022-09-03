@@ -45,7 +45,7 @@ class _MessagesPageState extends State<MessagesPage> {
             stream: FirebaseFirestore.instance
                 .collection('messages')
                 .where(
-                    context.watch<UserState>().userEntity['type'] != 'tutor'
+                    context.watch<UserState>().type != 'tutor'
                         ? 'userId'
                         : 'userAdId',
                     isEqualTo: FirebaseAuth.instance.currentUser!.uid)

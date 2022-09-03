@@ -231,138 +231,142 @@ class _accountAuthedState extends State<accountAuthed> {
                   SizedBox(
                     height: 20,
                   ),
-                  PrimaryText(text: 'إعلاناتي'),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    child: StreamBuilder(
-                        stream: FirebaseFirestore.instance
-                            .collection('ads')
-                            .where(
-                              FieldPath.fromString('tutor.id'),
-                              isEqualTo: context.watch<UserState>().userUID,
-                            )
-                            .snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> snapshot) {
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return ListView(
-                            physics:
-                                const NeverScrollableScrollPhysics(), //to stop the default behavior of scrolling within the widget itself
-                            shrinkWrap: true,
-                            children: snapshot.data!.docs.map((document) {
-                              return ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CourseDetails(
-                                        adId: document.id,
+                  if (context.watch<UserState>().userEntity['type'] == 'tutor')
+                    PrimaryText(text: 'إعلاناتي'),
+                  if (context.watch<UserState>().userEntity['type'] == 'tutor')
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection('ads')
+                              .where(
+                                FieldPath.fromString('tutor.id'),
+                                isEqualTo: context.watch<UserState>().userUID,
+                              )
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<QuerySnapshot> snapshot) {
+                            if (!snapshot.hasData) {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            return ListView(
+                              physics:
+                                  const NeverScrollableScrollPhysics(), //to stop the default behavior of scrolling within the widget itself
+                              shrinkWrap: true,
+                              children: snapshot.data!.docs.map((document) {
+                                return ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CourseDetails(
+                                          adId: document.id,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                title: Center(
-                                  child: Container(
-                                      child: Column(children: [
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    PostWidget(
-                                        tags: [document['category']['title']],
-                                        titleText: document['title'],
-                                        timeOfCourse: DateTime.utc(
-                                            1989, DateTime.november, 9),
-                                        postText: document['body'],
-                                        userImage:
-                                            'https://picsum.photos/400/250',
-                                        userName: document['tutor']
-                                                ['firstname'] +
-                                            " " +
-                                            document['tutor']['lastname'],
-                                        onPress: () {}),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton.icon(
-                                          icon: Icon(Icons.edit),
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Color(0xff48A9C5),
-                                          ),
-                                          onPressed: () async {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    UpdateCourse(
-                                                  context: context,
-                                                  adId: document.id,
+                                    );
+                                  },
+                                  title: Center(
+                                    child: Container(
+                                        child: Column(children: [
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      PostWidget(
+                                          tags: [document['category']['title']],
+                                          titleText: document['title'],
+                                          timeOfCourse: DateTime.utc(
+                                              1989, DateTime.november, 9),
+                                          postText: document['body'],
+                                          userImage:
+                                              'https://picsum.photos/400/250',
+                                          userName: document['tutor']
+                                                  ['firstname'] +
+                                              " " +
+                                              document['tutor']['lastname'],
+                                          onPress: () {}),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ElevatedButton.icon(
+                                            icon: Icon(Icons.edit),
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Color(0xff48A9C5),
+                                            ),
+                                            onPressed: () async {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      UpdateCourse(
+                                                    context: context,
+                                                    adId: document.id,
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                          label: Text(
-                                            'تعديل',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20),
+                                              );
+                                            },
+                                            label: Text(
+                                              'تعديل',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton.icon(
-                                          icon: Icon(Icons.delete),
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Colors.redAccent,
+                                          SizedBox(
+                                            width: 10,
                                           ),
-                                          onPressed: () async {
-                                            if (await confirm(context)) {
-                                              deleteCourse(document.id)
-                                                  .then(((value) {
+                                          ElevatedButton.icon(
+                                            icon: Icon(Icons.delete),
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.redAccent,
+                                            ),
+                                            onPressed: () async {
+                                              if (await confirm(context)) {
+                                                deleteCourse(document.id)
+                                                    .then(((value) {
+                                                  buildFlushbar(context,
+                                                          messageText:
+                                                              'تم الحذف بنجاح',
+                                                          title: 'تمت العملية',
+                                                          successes: true)
+                                                      .show(context);
+                                                })).catchError((e) {
+                                                  buildFlushbar(context,
+                                                          messageText:
+                                                              'حدث خطأ',
+                                                          title:
+                                                              'حدث خلل ما و لم تتم العملية',
+                                                          successes: false)
+                                                      .show(context);
+                                                });
+                                              } else {
                                                 buildFlushbar(context,
                                                         messageText:
-                                                            'تم الحذف بنجاح',
-                                                        title: 'تمت العملية',
-                                                        successes: true)
-                                                    .show(context);
-                                              })).catchError((e) {
-                                                buildFlushbar(context,
-                                                        messageText: 'حدث خطأ',
+                                                            'تم الإلغاء',
                                                         title:
-                                                            'حدث خلل ما و لم تتم العملية',
+                                                            'لم تتم عملية الحذف',
                                                         successes: false)
                                                     .show(context);
-                                              });
-                                            } else {
-                                              buildFlushbar(context,
-                                                      messageText: 'تم الإلغاء',
-                                                      title:
-                                                          'لم تتم عملية الحذف',
-                                                      successes: false)
-                                                  .show(context);
-                                            }
-                                          },
-                                          label: Text(
-                                            'حذف',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20),
+                                              }
+                                            },
+                                            label: Text(
+                                              'حذف',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    )
-                                  ])),
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        }),
-                  ),
+                                        ],
+                                      )
+                                    ])),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          }),
+                    ),
                 ],
               ),
             ),

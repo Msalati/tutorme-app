@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/Widgets/AppBar.dart';
 
 import 'ChatScreen.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/userStateProvider.dart';
 
 class CourseDetails extends StatefulWidget {
   const CourseDetails({
@@ -110,75 +113,85 @@ class _CourseDetailsState extends State<CourseDetails> {
                       SizedBox(
                         height: 20,
                       ),
-                      GestureDetector(
-                        onTap: () async {
-                          final userId = FirebaseAuth.instance.currentUser!.uid;
-                          chatButtonEvent(
-                            userAdId:
-                                (snapshot.data!.get('tutor') as Map)['id'],
-                            userId: userId,
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: 110,
-                              height: 40,
-                              color: Colors.grey,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'مراسلة',
-                                  style: TextStyle(
-                                    color: Color(0xff808080),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Icon(Icons.message, color: Color(0xff48a9c5)),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text('مهارات المرشد'),
-                      Row(
-                        children: ((snapshot.data!.get('tutor')
-                                as Map)['skills'] as List)
-                            .map(
-                              (e) => Row(
+                      if (context.watch<UserState>().type == 'client')
+                        GestureDetector(
+                          onTap: () async {
+                            final userId =
+                                FirebaseAuth.instance.currentUser!.uid;
+                            chatButtonEvent(
+                              userAdId:
+                                  (snapshot.data!.get('tutor') as Map)['id'],
+                              userId: userId,
+                            );
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                width: 110,
+                                height: 40,
+                                color: Colors.grey,
+                              ),
+                              Row(
                                 children: [
-                                  Container(
-                                    height: 25,
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xff48A9C5),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      e,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
+                                  Text(
+                                    'مراسلة',
+                                    style: TextStyle(
+                                      color: Color(0xff808080),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 10,
+                                    width: 5,
                                   ),
+                                  Icon(Icons.message, color: Color(0xff48a9c5)),
                                 ],
-                              ),
-                            )
-                            .toList(),
+                              )
+                            ],
+                          ),
+                        ),
+                      SizedBox(
+                        height: 20,
                       ),
+                      if (snapshot.data!
+                          .get('tutor.skills')
+                          .toString()
+                          .isNotEmpty)
+                        Text('مهارات المرشد'),
+                      if (snapshot.data!
+                          .get('tutor.skills')
+                          .toString()
+                          .isNotEmpty)
+                        Row(
+                          children: ((snapshot.data!.get('tutor')
+                                  as Map)['skills'] as List)
+                              .map(
+                                (e) => Row(
+                                  children: [
+                                    Container(
+                                      height: 25,
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: BoxDecoration(
+                                        color: Color(0xff48A9C5),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        e,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
                       SizedBox(
                         height: 20,
                       ),
