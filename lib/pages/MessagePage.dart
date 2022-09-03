@@ -60,7 +60,7 @@ class _MessagesPageState extends State<MessagesPage> {
             onPressed: () {
               sendReport();
             },
-            icon: Icon(Icons.send),
+            icon: Icon(Icons.report),
           ),
         ],
       ),

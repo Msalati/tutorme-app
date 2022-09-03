@@ -291,27 +291,28 @@ class _CourseDetailsState extends State<CourseDetails> {
                           SizedBox(
                             width: 10,
                           ),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                barrierDismissible:
-                                    true, // set to false if you want to force a rating
-                                builder: (context) => _dialog,
-                              );
-                            },
-                            icon: Icon(Icons.star),
-                            label: Text(
-                              "تقييم",
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
+                          if (context.watch<UserState>().type == 'client')
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible:
+                                      true, // set to false if you want to force a rating
+                                  builder: (context) => _dialog,
+                                );
+                              },
+                              icon: Icon(Icons.star),
+                              label: Text(
+                                "تقييم",
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.yellow.shade700,
+                                textStyle: TextStyle(fontSize: 15),
                               ),
                             ),
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.yellow.shade700,
-                              textStyle: TextStyle(fontSize: 15),
-                            ),
-                          ),
                         ],
                       ),
                       SizedBox(

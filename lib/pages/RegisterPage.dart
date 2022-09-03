@@ -64,7 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
         "isActive": true,
         "isVIP": false,
         "phone_number": '+218${phone_number.text}',
-        "skills": "مرشد",
+        "skills": ["مرشد"],
         "type": userType
       };
 
