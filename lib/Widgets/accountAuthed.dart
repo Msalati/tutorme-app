@@ -64,11 +64,10 @@ class _accountAuthedState extends State<accountAuthed> {
                   SizedBox(
                     height: 20,
                   ),
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: NetworkImage(
-                      context.watch<UserState>().userImage,
-                    ),
+                  Image.asset(
+                    'Images/user.png',
+                    width: 100,
+                    height: 100,
                   ),
                   ElevatedButton(
                     onPressed: () {
