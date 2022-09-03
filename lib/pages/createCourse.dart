@@ -57,7 +57,8 @@ class _CreateCourseState extends State<CreateCourse> {
       "price": course_price.text,
       "time": stamp,
       "tutor": user,
-      "category": {"id": __category.id, "title": __category['title']}
+      "category": {"id": __category.id, "title": __category['title']},
+      "reviews": []
     };
     // course['id'] = FirebaseFirestore.instance.collection('ads').doc().id;
     await FirebaseFirestore.instance
@@ -75,10 +76,11 @@ class _CreateCourseState extends State<CreateCourse> {
         Navigator.pushNamed(context, '/home');
       });
     }).catchError((onError) {
-      buildFlushbar(context,
-              messageText: 'حدث خطأ يرجى إعادة المحاولة',
-              title: 'حدث خطأ',)
-          .show(context);
+      buildFlushbar(
+        context,
+        messageText: 'حدث خطأ يرجى إعادة المحاولة',
+        title: 'حدث خطأ',
+      ).show(context);
     });
   }
 

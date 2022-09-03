@@ -31,7 +31,10 @@ class SearchResultPage extends StatelessWidget {
             StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('ads')
-                    .where('title', isEqualTo: text)
+                    .where('title', isGreaterThanOrEqualTo: text)
+                    .where('title', isLessThan: text + 'z')
+                    // .where('tutor.firstname', isEqualTo: text)
+                    // .where('tutor.firstname', isLessThan: text + 'z')
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {

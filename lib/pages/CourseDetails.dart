@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
 import 'package:graduation_project/Widgets/AppBar.dart';
 
@@ -22,6 +23,26 @@ class CourseDetails extends StatefulWidget {
 }
 
 class _CourseDetailsState extends State<CourseDetails> {
+  String username = 'Loading';
+  double value = 0;
+
+  String usernameSetter(firstname, lastname) {
+    username = '${firstname} ${lastname}';
+    return '${firstname} ${lastname}';
+  }
+
+  double getAvgReviews(reviews) {
+    // reviews array
+    /**
+     * Summation of review values / NUMBER OF REVIEWS (LENGTH )
+    **/
+    num sum = 0;
+    for (var i = 0; i < reviews.length; i++) {
+      sum += reviews[0]['rating'];
+    }
+    return (sum / reviews.length);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -53,8 +74,8 @@ class _CourseDetailsState extends State<CourseDetails> {
                         snapshot.data!.get('title'),
                         style: TextStyle(
                           color: Color(0xff48A9C5),
-                          fontSize: 20,
-                          fontWeight: FontWeight.normal,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(
@@ -65,13 +86,10 @@ class _CourseDetailsState extends State<CourseDetails> {
                         children: [
                           Row(
                             children: [
-                              Container(
+                              Image.asset(
+                                'Images/user.png',
                                 width: 40,
                                 height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
                               ),
                               SizedBox(
                                 width: 10,
@@ -80,8 +98,9 @@ class _CourseDetailsState extends State<CourseDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    (snapshot.data!.get('tutor')
-                                        as Map)['firstname'],
+                                    usernameSetter(
+                                        snapshot.data!.get('tutor.firstname'),
+                                        snapshot.data!.get('tutor.lastname')),
                                     style: TextStyle(
                                       color: Color(0xffA0A0A0),
                                       fontSize: 14,
@@ -154,11 +173,82 @@ class _CourseDetailsState extends State<CourseDetails> {
                       SizedBox(
                         height: 20,
                       ),
+                      Row(children: [
+                        Text(
+                          'التقييمات:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Text(
+                          '(${snapshot.data!.get('reviews').length})',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                      ]),
+                      Row(
+                        children: [
+                          RatingStars(
+                            value: getAvgReviews(snapshot.data!.get('reviews')),
+                            onValueChanged: (v) {
+                              //
+                              setState(() {
+                                value = v;
+                              });
+                            },
+                            starBuilder: (index, color) => Icon(
+                              Icons.star_purple500_outlined,
+                              color: color,
+                            ),
+                            starCount: 5,
+                            starSize: 30,
+                            valueLabelColor: const Color(0xff48A9C5),
+                            valueLabelTextStyle: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
+                                fontStyle: FontStyle.normal,
+                                fontSize: 12.0),
+                            valueLabelRadius: 10,
+                            maxValue: 5,
+                            starSpacing: 2,
+                            maxValueVisibility: true,
+                            valueLabelVisibility: true,
+                            animationDuration: Duration(milliseconds: 1000),
+                            valueLabelPadding: const EdgeInsets.symmetric(
+                                vertical: 1, horizontal: 8),
+                            valueLabelMargin: const EdgeInsets.only(right: 8),
+                            starOffColor: const Color(0xffe7e8ea),
+                            starColor: Colors.yellow.shade600,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Icon(Icons.star),
+                            label: Text(
+                              "تقييم",
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.yellow.shade700,
+                              textStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
                       if (snapshot.data!
                           .get('tutor.skills')
                           .toString()
                           .isNotEmpty)
-                        Text('مهارات المرشد'),
+                        Text(
+                          'مهارات المرشد:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       if (snapshot.data!
                           .get('tutor.skills')
                           .toString()
@@ -195,15 +285,18 @@ class _CourseDetailsState extends State<CourseDetails> {
                       SizedBox(
                         height: 20,
                       ),
-                      Row(
-                        children: [
-                          Text('العنوان : '),
-                          Text(snapshot.data!.get('location')),
-                        ],
+                      Text(
+                        'العنوان:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
                       ),
+                      Text(snapshot.data!.get('location')),
                       SizedBox(
                         height: 20,
                       ),
+                      Text('الوصف:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18)),
                       Text(snapshot.data!.get('body')),
                     ],
                   ),
@@ -242,6 +335,7 @@ class _CourseDetailsState extends State<CourseDetails> {
         MaterialPageRoute(
           builder: (context) => ChatScreen(
             chatId: doc.id,
+            username: username,
           ),
         ),
       );
@@ -252,6 +346,7 @@ class _CourseDetailsState extends State<CourseDetails> {
         MaterialPageRoute(
           builder: (context) => ChatScreen(
             chatId: result.docs.first.id,
+            username: username,
           ),
         ),
       );

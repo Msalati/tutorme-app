@@ -14,7 +14,34 @@ class MessagesPage extends StatefulWidget {
   State<MessagesPage> createState() => _MessagesPageState();
 }
 
+String usernameSetter(firstname, lastname) {
+  return '${firstname} ${lastname}';
+}
+
+//this is a helper function which check
+// the type of user to get the correct name for the person who sent the message
+String determiner(doc, type) {
+  return doc[type];
+}
+
+Future getUsername(id) async {
+  await FirebaseFirestore.instance
+      .collection('users')
+      .doc(id)
+      .get()
+      .then(((snapshot) {
+    return usernameSetter(
+        snapshot.data()!['firstname'], snapshot.data()!['lastname']);
+  }));
+}
+
 class _MessagesPageState extends State<MessagesPage> {
+  // String username = 'Loading';
+
+  String usernameSetter(firstname, lastname) {
+    return '${firstname} ${lastname}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +102,23 @@ class _MessagesPageState extends State<MessagesPage> {
                                       MaterialPageRoute(
                                           builder: (context) => ChatScreen(
                                                 chatId: e.id,
+                                                username: 'جار التحميل...',
                                               )),
+
+                                              /**
+                                               * improvised solution:
+                                               * getUsername(determiner(
+                                                    e,
+                                                    context
+                                                                .watch<
+                                                                    UserState>()
+                                                                .type ==
+                                                            'tutor'
+                                                        ? 'userId'
+                                                        : 'userAdId'))
+                                                        
+                                                        
+                                               */
                                     );
                                   },
                                   child: Row(
@@ -101,12 +144,39 @@ class _MessagesPageState extends State<MessagesPage> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                e.id,
-                                                textAlign: TextAlign.right,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                softWrap: false,
+                                              // e.id
+                                              StreamBuilder<
+                                                  DocumentSnapshot<
+                                                      Map<String, dynamic>>>(
+                                                stream: FirebaseFirestore
+                                                    .instance
+                                                    .collection('users')
+                                                    .doc(determiner(
+                                                        e,
+                                                        context
+                                                                    .watch<
+                                                                        UserState>()
+                                                                    .type ==
+                                                                'tutor'
+                                                            ? 'userId'
+                                                            : 'userAdId'))
+                                                    .snapshots(),
+                                                builder: (context, snapshot) {
+                                                  if (!snapshot.hasData) {
+                                                    return LinearProgressIndicator();
+                                                  }
+                                                  var user = snapshot.data;
+                                                  return Text(
+                                                    usernameSetter(
+                                                        user!['firstname'],
+                                                        user['lastname']),
+                                                    textAlign: TextAlign.right,
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: false,
+                                                  );
+                                                },
                                               ),
                                               SizedBox(
                                                 height: 10,

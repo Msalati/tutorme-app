@@ -6,10 +6,12 @@ import 'package:graduation_project/Widgets/chat_bubble.dart';
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
     required this.chatId,
+    required this.username,
     Key? key,
   }) : super(key: key);
 
   final String chatId;
+  final String username;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -24,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("UserName"),
+          title: Text(widget.username),
           backgroundColor: Color(0xff48A9C5),
           leading: Image.asset(
             'Images/user.png',
