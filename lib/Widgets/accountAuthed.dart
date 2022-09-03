@@ -300,7 +300,7 @@ class _accountAuthedState extends State<accountAuthed> {
                                                 builder: (context) =>
                                                     UpdateCourse(
                                                   context: context,
-                                                  valueListen: courseListen,
+                                                  adId: document.id,
                                                 ),
                                               ),
                                             );

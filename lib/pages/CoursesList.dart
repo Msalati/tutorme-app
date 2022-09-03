@@ -5,6 +5,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:graduation_project/Widgets/AppBar.dart';
 import 'package:graduation_project/Widgets/Post_Widget.dart';
+import 'package:graduation_project/Widgets/Primary_Text.dart';
 import 'package:graduation_project/pages/CourseDetails.dart';
 
 class CourseList extends StatefulWidget {
@@ -42,41 +43,45 @@ class _CourseListState extends State<CourseList> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                return ListView(
-                  children: snapshot.data!.docs.map((document) {
-                    return ListTile(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseDetails(
-                              adId: document.id,
+                if (snapshot.data!.size == 0) {
+                  return Center(
+                      child: PrimaryText(text: 'لا يوجد إعلانات بعد'));
+                } else
+                  return ListView(
+                    children: snapshot.data!.docs.map((document) {
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CourseDetails(
+                                adId: document.id,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      title: Center(
-                        child: Container(
-                            child: Column(children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          PostWidget(
-                              tags: [document['category']['title']],
-                              titleText: document['title'],
-                              timeOfCourse:
-                                  DateTime.utc(1989, DateTime.november, 9),
-                              postText: document['body'],
-                              userImage: 'https://picsum.photos/400/250',
-                              userName: document['tutor']['firstname'] +
-                                  " " +
-                                  document['tutor']['lastname'],
-                              onPress: () {})
-                        ])),
-                      ),
-                    );
-                  }).toList(),
-                );
+                          );
+                        },
+                        title: Center(
+                          child: Container(
+                              child: Column(children: [
+                            SizedBox(
+                              height: 20,
+                            ),
+                            PostWidget(
+                                tags: [document['category']['title']],
+                                titleText: document['title'],
+                                timeOfCourse:
+                                    DateTime.utc(1989, DateTime.november, 9),
+                                postText: document['body'],
+                                userImage: 'https://picsum.photos/400/250',
+                                userName: document['tutor']['firstname'] +
+                                    " " +
+                                    document['tutor']['lastname'],
+                                onPress: () {})
+                          ])),
+                        ),
+                      );
+                    }).toList(),
+                  );
               }),
         ),
       ),

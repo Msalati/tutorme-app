@@ -2,19 +2,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:graduation_project/Widgets/flush_bar.dart';
+import 'package:graduation_project/providers/userStateProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart' as dateBox;
 
 import '../providers/userStateProvider.dart';
 
 class UpdateCourse extends StatefulWidget {
   const UpdateCourse({
     required this.context,
-    required this.valueListen,
+    required this.adId,
     Key? key,
   }) : super(key: key);
   final BuildContext context;
-  final ValueNotifier<int> valueListen;
+  final String adId;
 
   @override
   State<UpdateCourse> createState() => _UpdateCourseState();
@@ -22,380 +25,355 @@ class UpdateCourse extends StatefulWidget {
 
 class _UpdateCourseState extends State<UpdateCourse> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController firstName = TextEditingController(
-      text: widget.context.watch<UserState>().userEntity['firstname']);
-  late TextEditingController lastName = TextEditingController(
-      text: widget.context.watch<UserState>().userEntity['lastname']);
-  late TextEditingController email = TextEditingController(
-      text: widget.context.watch<UserState>().userEntity['email']);
-  late TextEditingController phone_number = TextEditingController(
-      text: widget.context.watch<UserState>().userEntity['phone_number']);
-  late TextEditingController password = TextEditingController();
-  late TextEditingController confirmPassword = TextEditingController();
-  bool _isObscure1 = true;
-  bool _isObscure2 = true;
+  var course_name = TextEditingController();
+  var course_desc = TextEditingController();
+  var course_location = TextEditingController();
+  var course_price = TextEditingController();
+  var course_type = 'إختر فئة';
+  var course_category = null;
+  var __category = null;
+  DateTime selectedDate = DateTime.now();
+  Timestamp stamp = Timestamp(1231, 12312);
+
+  var course = {
+    "title": "",
+    "body": "",
+    "location": "",
+    "price": "",
+    "time": "",
+    "tutor": "",
+    "category": ""
+  };
   bool isLoading = false;
-  String? dropdownValue = 'طرابلس';
+  bool isLoadingCourse = true;
+  //invalid chracters for price
+  static final validChars = RegExp(r'^[0-9]+$');
+
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // getCategories(); //not needed
+      getCourseContents(widget.adId).then((value) {
+        // buildFlushbar(context,
+        //         messageText: 'يمكنك التعديل الآن',
+        //         title: 'تمت العملية',
+        //         successes: true)
+        //     .show(context);
+      }).catchError((e) {
+        buildFlushbar(context,
+                messageText: 'حدث خطأ',
+                title: 'الرجاء المحاولة من جديد',
+                successes: false)
+            .show(context);
+      });
+    });
+  }
+// obsolete
+  // Future<Map<String, dynamic>?> getCategories() async {
+  //   final snapshot =
+  //       await FirebaseFirestore.instance.collection('categories').snapshots();
+  // }
+
+  Future<Map<String, dynamic>?> getCourseContents(id) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('ads')
+        .doc(id)
+        .get()
+        .then((value) {
+      isLoadingCourse = false;
+      if (this.mounted)
+        setState(() {
+          course_name.text = value['title'];
+          course_desc.text = value['body'];
+          course_location.text = value['location'];
+          course_price.text = value['price'];
+          selectedDate = value['time'].toDate();
+          __category = {
+            "id": value['category.id'],
+            "title": value['category.title']
+          };
+        });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'تعديل الحساب',
-            style: TextStyle(fontFamily: 'Cairo'),
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text('تعديل إعلان'),
+            backgroundColor: Color(0xff48A9C5),
           ),
-          backgroundColor: Color(0xff48A9C5),
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Container(
-              color: Colors.white,
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.always,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Image.asset(
-                      'Images/New__User.png',
-                      width: 150,
-                      height: 150,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      width: double.infinity,
-                      child: Row(
+          body: isLoadingCourse
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : SingleChildScrollView(
+                  child: Form(
+                    autovalidateMode: AutovalidateMode.always,
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            flex: 1,
-                            child: Container(
+                          Text(
+                            'إسم الإعلان',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
                               padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 0,
-                              ),
+                                  horizontal: 10, vertical: 0),
                               decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Color(0xff48A9C5),
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                                  border: Border.all(color: Color(0xff48A9C5)),
+                                  borderRadius: BorderRadius.circular(5)),
                               child: TextFormField(
-                                controller: firstName,
+                                controller: course_name,
+                                validator: (course_name) {
+                                  if (course_name != null &&
+                                      course_name.length > 0) {
+                                    return null;
+                                  } else {
+                                    return 'يجب إدخال إسم الإعلان';
+                                  }
+                                },
                                 decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'الاسم',
+                                    border: InputBorder.none,
+                                    hintText: 'إسم يوضح الإعلان'),
+                              )),
+                          Text(
+                            'وصف الإعلان',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xff48A9C5)),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: TextFormField(
+                                maxLines: 3,
+                                controller: course_desc,
+                                validator: (course_desc) {
+                                  if (course_desc != null &&
+                                      course_desc.length > 10) {
+                                    return null;
+                                  } else {
+                                    return 'يجب إدخال وصف و أن يكون 10 حروف على الأقل';
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'تكلم عن الإعلان الخاص بك'),
+                              )),
+                          Text(
+                            'عنوان المكان',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xff48A9C5)),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: TextFormField(
+                                controller: course_location,
+                                validator: (course_location) {
+                                  if (course_location != null &&
+                                      course_location.length > 0) {
+                                    return null;
+                                  } else {
+                                    return 'يجب إدخال العنوان';
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'الموقع الجغرافي الخاص بالمكان'),
+                              )),
+                          Text(
+                            'السعر',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xff48A9C5)),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: TextFormField(
+                                keyboardType: TextInputType.number,
+                                controller: course_price,
+                                validator: (course_price) {
+                                  if (course_price != null &&
+                                      course_price.length > 0 &&
+                                      validChars.hasMatch(course_price)) {
+                                    return null;
+                                  } else {
+                                    return 'يجب إدخال السعر بطريقة صحيحة';
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '999 د.ل.'),
+                              )),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                            'توقيت الجلسة',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Center(
+                            child: Container(
+                              color: Color(0xff48A9C5),
+                              child: MaterialButton(
+                                onPressed: () {
+                                  DatePicker.showDateTimePicker(context,
+                                      showTitleActions: true,
+                                      minTime: DateTime(2018, 3, 5),
+                                      maxTime: DateTime(2019, 6, 7),
+                                      onConfirm: (date) {
+                                    setState(() {
+                                      selectedDate = date;
+                                      stamp = Timestamp.fromDate(date);
+                                    });
+                                  },
+                                      currentTime: selectedDate,
+                                      locale: LocaleType.en);
+                                },
+                                child: Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Text(
+                                    dateBox.DateFormat()
+                                        .add_yMd()
+                                        .add_jm()
+                                        .format(selectedDate),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                           SizedBox(
-                            width: 20,
+                            height: 20,
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 0,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Color(0xff48A9C5),
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: TextFormField(
-                                controller: lastName,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'اللقب',
-                                ),
-                              ),
-                            ),
+                          Text(
+                            'فئة الإعلان',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Color(0xff48A9C5),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextFormField(
-                        controller: email,
-                        validator: (email) {
-                          if (email != null &&
-                              !EmailValidator.validate(email)) {
-                            return 'يرجى إدخال بريد إلكتروني صحيح';
-                          } else {
-                            return null;
-                          }
-                        },
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.email),
-                          border: InputBorder.none,
-                          hintText: 'البريد الإلكتروني',
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Color(0xff48A9C5),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Directionality(
-                        textDirection: TextDirection.ltr,
-                        child: TextFormField(
-                          textAlign: TextAlign.right,
-                          controller: phone_number,
-                          validator: (phone_number) {
-                            if (phone_number != null &&
-                                phone_number.length <= 8) {
-                              return 'يجب أن يكون رقم الهاتف صحيحًا.';
-                            } else {
-                              return null;
-                            }
-                          },
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              icon: Icon(Icons.phone_android),
-                              prefixText: '+218',
-                              border: InputBorder.none,
-                              hintText: 'رقم الهاتف'),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Color(0xff48A9C5),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextFormField(
-                        controller: password,
-                        textDirection: TextDirection.ltr,
-                        validator: (value) {
-                          if (value != null && value.length <= 7) {
-                            return 'يجب أن لا تقل كلمة المرور عن ثمانية حروف أو أرقام';
-                          } else {
-                            return null;
-                          }
-                        },
-                        obscureText: _isObscure1,
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.password),
-                          border: InputBorder.none,
-                          hintText: 'كلمة المرور',
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isObscure1 = !_isObscure1;
-                              });
-                            },
-                            icon: Icon(Icons.remove_red_eye),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: Color(0xff48A9C5),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextFormField(
-                        obscureText: _isObscure2,
-                        textDirection: TextDirection.ltr,
-                        controller: confirmPassword,
-                        validator: (value) {
-                          if (value != null && value != password.text) {
-                            return 'يجب أن تكون كلمة المرور متطابقة';
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.password),
-                          border: InputBorder.none,
-                          hintText: 'تأكيد كلمة المرور',
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isObscure2 = !_isObscure2;
-                              });
-                            },
-                            icon: Icon(Icons.remove_red_eye),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: Row(
-                        children: [
-                          Expanded(
-                              flex: 2,
-                              child:
-                                  Text('المدينة', textAlign: TextAlign.right)),
-                          Expanded(
-                            flex: 3,
-                            child: DropdownButton<String>(
-                              value: dropdownValue,
-                              icon:
-                                  const Icon(Icons.keyboard_arrow_down_rounded),
-                              elevation: 16,
-                              isExpanded: true,
-                              style: const TextStyle(color: Colors.deepPurple),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  dropdownValue = newValue!;
-                                });
-                              },
-                              items: <String>[
-                                'طرابلس',
-                                'بنغازي',
-                                'الزاوية',
-                                'الجفرة',
-                                'الكفرة',
-                                'سرت',
-                                'زنتان',
-                                'الرحيبات',
-                                'جادو',
-                                'غريان',
-                                'العزيزية',
-                                'نالوت',
-                                'البيضاء',
-                                'الرجبان',
-                                'سبها'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    textAlign: TextAlign.right,
+                          FutureBuilder<QuerySnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection('categories')
+                                .get(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.hasData) {
+                                return Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      border:
+                                          Border.all(color: Color(0xff48A9C5)),
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: DropdownButtonFormField<String>(
+                                    validator: (selection) {
+                                      if (selection != null) {
+                                        return null;
+                                      } else {
+                                        return 'يجب إدخال فئة الإعلان';
+                                      }
+                                    },
+                                    value: course_category,
+                                    isExpanded: true,
+                                    onChanged: (value) {
+                                      course_category = value;
+                                      // print(course_category);
+                                      setState(() {});
+                                    },
+                                    items: snapshot.data?.docs.map((doc) {
+                                          // your widget here(use doc data)
+                                          // print(doc.reference.id);
+                                          // print(doc);
+                                          return DropdownMenuItem<String>(
+                                              value:
+                                                  doc.reference.id.toString(),
+                                              onTap: () {
+                                                __category = doc;
+                                              },
+                                              child: Text(doc['title']));
+                                        }).toList() ??
+                                        [],
                                   ),
                                 );
-                              }).toList(),
-                            ),
+                              } else {
+                                // or your loading widget here
+                                return Text('Loading...');
+                              }
+                            },
                           ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Center(
+                            child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 30),
+                                width: 250,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                decoration: BoxDecoration(
+                                    color: Color(0xff48A9C5),
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: MaterialButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate())
+                                        updateCourse(widget.adId);
+                                    },
+                                    child: Text("تعديل الإعلان",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontFamily: 'Cairo')))),
+                          )
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    isLoading
-                        ? CircularProgressIndicator()
-                        : Container(
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                border: Border.all(
-                                    color: Color(0xff48A9C5), width: 2),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: MaterialButton(
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  UpdateCourse();
-                                }
-                              },
-                              child: Text(
-                                'تعديل',
-                                style: TextStyle(
-                                    color: Color(0xff48A9C5), fontSize: 20),
-                              ),
-                            ),
-                          ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+                  ),
+                )),
     );
   }
 
-  void UpdateCourse() async {
+  void updateCourse(id) async {
     setState(() {
       isLoading = true;
     });
     try {
-      await FirebaseAuth.instance.currentUser!.updateEmail(email.text);
-      await FirebaseAuth.instance.currentUser!.updatePassword(password.text);
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(Provider.of<UserState>(widget.context, listen: false)
-              .userEntity['id'])
-          .update({
-        'firstname': firstName.text,
-        'lastname': lastName.text,
-        'email': email.text,
-        'phone_number': phone_number.text,
-        'address': dropdownValue,
+      await FirebaseFirestore.instance.collection('ads').doc(id).update({
+        'title': course_name.text,
+        'body': course_desc.text,
+        'location': course_location.text,
+        'price': course_price.text,
+        'time': stamp,
+        'category': {"id": __category.id, "title": __category['title']}
       });
-
-      final userdata = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(Provider.of<UserState>(widget.context, listen: false)
-              .userEntity['id'])
-          .get();
-      Provider.of<UserState>(widget.context, listen: false)
-          .setUserInfoRegistered(userdata);
-      widget.valueListen.notifyListeners();
       buildFlushbar(context,
               messageText: 'تم التعديل بنجاح',
               title: 'تمت العملية',
